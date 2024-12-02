@@ -68,11 +68,10 @@ public partial class AeroUnits : Node {
     }
   }
   [Export] private Curve? _pressureAtAltitudeCurve;
-
+  // Backing Store
   private float _minTemperature = 100f;
-
+  // Backing Store
   private float _maxTemperature = 400f;
-
   [Export] private float MinTemperature {
     get => _minTemperature;
     set {
@@ -224,19 +223,23 @@ public partial class AeroUnits : Node {
     _machAtAltitudeCurve = new Curve();
     _pressureAtAltitudeCurve = new Curve();
     _temperatureAtAltitudeCurve = new Curve();
+    foreach (var key in _altitudeValues.Keys) {
+      var entry = _altitudeValues[key];
+      var altitudeLerp = AltitudeToLerp(key);
+      _temperatureAtAltitudeCurve.AddPoint(new Vector2(altitudeLerp, entry["temperature"]), 0f,0f, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
+      _densityAtAltitudeCurve.AddPoint(new Vector2(altitudeLerp, entry["density"]),0f,0f,Curve.TangentMode.Linear, Curve.TangentMode.Linear);
+      _pressureAtAltitudeCurve.AddPoint(new Vector2(altitudeLerp, entry["pressure"]),0f, 0f, Curve.TangentMode.Linear, Curve.TangentMode.Linear);
+      var speedOfSound = GetSpeedOfSoundAtPressureAndDensity(entry["pressure"], entry["density"]);
+      _machAtAltitudeCurve.AddPoint(new Vector2(altitudeLerp, speedOfSound), 0f, 0f, Curve.TangentMode.Linear,
+        Curve.TangentMode.Linear);
+    }
   }
   private float AltitudeToLerp(float altitude) => Mathf.Remap(altitude, _minAltitude, _maxAltitude, 0f, 1f);
-
   private float LerpToAltitude(float lerp) => Mathf.Remap(lerp, 0f, 1f, _minAltitude, _maxAltitude);
-
   private static float RangeToLerp(float value, float min, float max) => Mathf.Remap(value, min, max, 0f, 1f);
-
   private float LerpToRange(float lerp, float min, float max) => Mathf.Remap(lerp, 0f, 1f, min, max);
-
   private float GetSpeedOfSoundAtPressureAndDensity(float pressure, float density) => Mathf.Sqrt(_ratioOfSpecificHeat * (pressure / density));
-
   private float SpeedToMachAtAltitude(float speed, float altitude) => speed / GetMachAtAltitude(altitude);
-
   private float GetAltitude(Node3D node) {
     while (true) {
       if (node.HasNode("/root/FloatingOriginHelper")) {
