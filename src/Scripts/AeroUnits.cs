@@ -68,7 +68,7 @@ public partial class AeroUnits : Node {
     }
   }
 
-  [Export] private Curve? _pressureAtAtltitudeCurve;
+  [Export] private Curve? _pressureAtAltitudeCurve;
   private void UpdateDensityCurve() {
     if (_densityAtAltitudeCurve != null) {
       _densityAtAltitudeCurve.MinValue = MinDensity;
@@ -102,14 +102,20 @@ public partial class AeroUnits : Node {
     return new float();
   }
   private void UpdatePressureCurve() {
-    _pressureAtAtltitudeCurve.MinValue = _minPressure;
-    _pressureAtAtltitudeCurve.MaxValue = _maxPressure;
-    _pressureAtAtltitudeCurve.BakeResolution = 16;
-    _pressureAtAtltitudeCurve.Bake();
+    if (_pressureAtAltitudeCurve != null) {
+      _pressureAtAltitudeCurve.MinValue = _minPressure;
+      _pressureAtAltitudeCurve.MaxValue = _maxPressure;
+      _pressureAtAltitudeCurve.BakeResolution = 16;
+      _pressureAtAltitudeCurve.Bake();
+    }
   }
   private float GetPressureAtAltitude(float altitude) {
     var lerp = AltitudeToLerp(altitude);
-    return _pressureAtAtltitudeCurve.SampleBaked(lerp);
+    if (_pressureAtAltitudeCurve != null) {
+      return _pressureAtAltitudeCurve.SampleBaked(lerp);
+    }
+    GD.PrintErr("_pressureAtAltitudeCurve is null! Returning empty float!");
+    return new float();
   }
   private void PopulateDictionary() {
     _altitudeValues.Add(0, new Dictionary<string, float>(){{"temperature", 288.0f}});
@@ -181,9 +187,26 @@ public partial class AeroUnits : Node {
     PopulateDictionary();
     _densityAtAltitudeCurve = new Curve();
     _machAtAltitudeCurve = new Curve();
-    _pressureAtAtltitudeCurve = new Curve();
+    _pressureAtAltitudeCurve = new Curve();
   }
-  private float AltitudeToLerp(float altitude) {
-    return Mathf.Remap(altitude, _minAltitude, _maxAltitude, 0f, 1f);
+  private float AltitudeToLerp(float altitude) => Mathf.Remap(altitude, _minAltitude, _maxAltitude, 0f, 1f);
+
+  private float LerpToAltitude(float lerp) => Mathf.Remap(lerp, 0f, 1f, _minAltitude, _maxAltitude);
+
+  private static float RangeToLerp(float value, float min, float max) => Mathf.Remap(value, min, max, 0f, 1f);
+
+  private float LerpToRange(float lerp, float min, float max) => Mathf.Remap(lerp, 0f, 1f, min, max);
+
+  private float GetSpeedOfSoundAtPressureAndDensity(float pressure, float density) => Mathf.Sqrt(_ratioOfSpecificHeat * (pressure / density));
+
+  private float SpeedToMachAtAltitude(float speed, float altitude) => speed / GetMachAtAltitude(altitude);
+
+  private float GetAltitude(Node3D node) {
+    while (true) {
+      if (node.HasNode("/root/FloatingOriginHelper")) {
+        continue;
+      }
+      return node.GlobalPosition.Y;
+    }
   }
 }
