@@ -67,8 +67,27 @@ public partial class AeroUnits : Node {
       UpdatePressureCurve();
     }
   }
-
   [Export] private Curve? _pressureAtAltitudeCurve;
+
+  private float _minTemperature = 100f;
+
+  private float _maxTemperature = 400f;
+
+  [Export] private float MinTemperature {
+    get => _minTemperature;
+    set {
+      _minTemperature = value;
+      UpdateTemperatureCurve();
+    }
+  }
+  [Export] private float MaxTemperature {
+    get => _maxTemperature;
+    set {
+      _maxTemperature = value;
+      UpdateTemperatureCurve();
+    }
+  }
+  [Export] private Curve? _temperatureAtAltitudeCurve;
   private void UpdateDensityCurve() {
     if (_densityAtAltitudeCurve != null) {
       _densityAtAltitudeCurve.MinValue = MinDensity;
@@ -103,8 +122,8 @@ public partial class AeroUnits : Node {
   }
   private void UpdatePressureCurve() {
     if (_pressureAtAltitudeCurve != null) {
-      _pressureAtAltitudeCurve.MinValue = _minPressure;
-      _pressureAtAltitudeCurve.MaxValue = _maxPressure;
+      _pressureAtAltitudeCurve.MinValue = MinPressure;
+      _pressureAtAltitudeCurve.MaxValue = MaxPressure;
       _pressureAtAltitudeCurve.BakeResolution = 16;
       _pressureAtAltitudeCurve.Bake();
     }
@@ -115,6 +134,22 @@ public partial class AeroUnits : Node {
       return _pressureAtAltitudeCurve.SampleBaked(lerp);
     }
     GD.PrintErr("_pressureAtAltitudeCurve is null! Returning empty float!");
+    return new float();
+  }
+  private void UpdateTemperatureCurve() {
+    if (_temperatureAtAltitudeCurve != null) {
+      _temperatureAtAltitudeCurve.MinValue = MinTemperature;
+      _temperatureAtAltitudeCurve.MaxValue = MaxTemperature;
+      _temperatureAtAltitudeCurve.BakeResolution = 16;
+      _temperatureAtAltitudeCurve.Bake();
+    }
+  }
+  private float GetTempAtAltitude(float altitude) {
+    var lerp = AltitudeToLerp(altitude);
+    if (_temperatureAtAltitudeCurve != null) {
+      return _temperatureAtAltitudeCurve.SampleBaked(lerp);
+    }
+    GD.PrintErr("_temperatureAtAltitudeCurve is null! Returning empty float!");
     return new float();
   }
   private void PopulateDictionary() {
@@ -188,6 +223,7 @@ public partial class AeroUnits : Node {
     _densityAtAltitudeCurve = new Curve();
     _machAtAltitudeCurve = new Curve();
     _pressureAtAltitudeCurve = new Curve();
+    _temperatureAtAltitudeCurve = new Curve();
   }
   private float AltitudeToLerp(float altitude) => Mathf.Remap(altitude, _minAltitude, _maxAltitude, 0f, 1f);
 
