@@ -49,16 +49,26 @@ public partial class AeroUnits : Node {
     }
   }
   [Export] private Curve? _machAtAltitudeCurve;
-
-  [Export] private float _minPressure;
-
-  private float MinPressure {
+  // Backing Store
+  private float _minPressure;
+  [Export] private float MinPressure {
     get => _minPressure;
     set {
-
+      _minPressure = value;
+      UpdatePressureCurve();
+    }
+  }
+  // Backing Store
+  private float _maxPressure;
+  [Export] private float MaxPressure {
+    get => _maxPressure;
+    set {
+      _maxPressure = value;
+      UpdatePressureCurve();
     }
   }
 
+  [Export] private Curve? _pressureAtAtltitudeCurve;
   private void UpdateDensityCurve() {
     if (_densityAtAltitudeCurve != null) {
       _densityAtAltitudeCurve.MinValue = MinDensity;
@@ -75,7 +85,6 @@ public partial class AeroUnits : Node {
     GD.PrintErr("_densityAtAltitudeCurve is null! Returning empty float!");
     return new float();
   }
-
   private void UpdateMachSpeedCurve() {
     if (_machAtAltitudeCurve != null) {
       _machAtAltitudeCurve.MinValue = MinMachSpeed;
@@ -92,13 +101,15 @@ public partial class AeroUnits : Node {
     GD.PrintErr("_machAtAltitudeCurve is null! Returning empty float!");
     return new float();
   }
-
   private void UpdatePressureCurve() {
-
+    _pressureAtAtltitudeCurve.MinValue = _minPressure;
+    _pressureAtAtltitudeCurve.MaxValue = _maxPressure;
+    _pressureAtAtltitudeCurve.BakeResolution = 16;
+    _pressureAtAtltitudeCurve.Bake();
   }
-
   private float GetPressureAtAltitude(float altitude) {
-    return 0f;
+    var lerp = AltitudeToLerp(altitude);
+    return _pressureAtAtltitudeCurve.SampleBaked(lerp);
   }
   private void PopulateDictionary() {
     _altitudeValues.Add(0, new Dictionary<string, float>(){{"temperature", 288.0f}});
@@ -170,6 +181,7 @@ public partial class AeroUnits : Node {
     PopulateDictionary();
     _densityAtAltitudeCurve = new Curve();
     _machAtAltitudeCurve = new Curve();
+    _pressureAtAtltitudeCurve = new Curve();
   }
   private float AltitudeToLerp(float altitude) {
     return Mathf.Remap(altitude, _minAltitude, _maxAltitude, 0f, 1f);
