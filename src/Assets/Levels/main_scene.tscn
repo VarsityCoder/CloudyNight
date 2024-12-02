@@ -1,0 +1,58 @@
+[gd_scene load_steps=10 format=3 uid="uid://b33ef14x5jj3u"]
+
+[ext_resource type="PackedScene" uid="uid://bj6yg6ilmtekq" path="res://src/Assets/Vehicles/airplane.tscn" id="1_7pkq4"]
+[ext_resource type="Shader" path="res://src/Assets/Levels/fogshader.gdshader" id="2_hdll5"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d1ps7"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_0pbxp"]
+sky_material = SubResource("ProceduralSkyMaterial_d1ps7")
+
+[sub_resource type="Environment" id="Environment_oalcy"]
+background_mode = 2
+sky = SubResource("Sky_0pbxp")
+tonemap_mode = 2
+glow_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vsbip"]
+albedo_color = Color(0.144063, 0.144063, 0.144063, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_g2f8c"]
+noise_type = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_bmmys"]
+seamless = true
+noise = SubResource("FastNoiseLite_g2f8c")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yyljw"]
+shader = ExtResource("2_hdll5")
+shader_parameter/noise_scale = 0.05
+shader_parameter/flatness = 2.567
+shader_parameter/density = 1.0
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_bmmys")
+
+[node name="MainScene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_oalcy")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(100, 0, 0, 0, 1, 0, 0, 0, 100, 0, 0, 0)
+use_collision = true
+material = SubResource("StandardMaterial3D_vsbip")
+
+[node name="AeroBody3D" parent="." instance=ExtResource("1_7pkq4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 19.4123, 0)
+
+[node name="FogVolume" type="FogVolume" parent="."]
+transform = Transform3D(9.78186, 0, 0, 0, 1.11407, 0, 0, 0, 10.8369, -1.21539, 8.75816, 14.2156)
+size = Vector3(10, 2, 10)
+material = SubResource("ShaderMaterial_yyljw")
