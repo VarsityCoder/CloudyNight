@@ -17,7 +17,7 @@ public partial class AeroSurfaceGizmo : EditorNode3DGizmoPlugin {
   private string GetGizmoName() => "AeroSurfaceGizmo";
 
   private bool HasGizmo(Node3D forNode3D) {
-    //TODO need to change this to AeroSurface3d
+    // need to change this to AeroSurface3d
     return forNode3D is AeroBody3d;
   }
   private void Redraw(EditorNode3DGizmo gizmo) {
