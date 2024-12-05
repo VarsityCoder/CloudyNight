@@ -2,6 +2,7 @@ using Godot;
 
 namespace CloudyNight.Scripts;
 
+[GlobalClass]
 public partial class Pid : Resource {
 
   //TODO add the aeroMathUtils hear

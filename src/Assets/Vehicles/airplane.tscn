@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://bj6yg6ilmtekq"]
+[gd_scene load_steps=19 format=3 uid="uid://bj6yg6ilmtekq"]
 
 [ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/core/aero_body_3d.gd" id="1_3ouou"]
 [ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/components/AeroControlComponent.gd" id="3_kpyar"]
@@ -72,6 +72,8 @@ span = 3.0
 auto_aspect_ratio = true
 aspect_ratio = 2.5
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yfauu"]
+
 [node name="AeroBody3D" type="VehicleBody3D"]
 mass = 1000.0
 center_of_mass_mode = 1
@@ -131,3 +133,6 @@ cumulative_throttle_down_event = &"throttle_down"
 cumulative_throttle_rate = 0.5
 
 [node name="FlyingMachine" parent="." instance=ExtResource("7_spd8r")]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+material = SubResource("StandardMaterial3D_yfauu")
