@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Pid" load_steps=2 format=3 uid="uid://c1xgy6ee6a8os"]
+
+[ext_resource type="Script" path="res://src/Scripts/Pid.cs" id="1_cioxx"]
+
+[resource]
+script = ExtResource("1_cioxx")
+_p = 1.0
+_i = 0.05
+_d = 0.1
+_clampIntegral = false
+_minIntegral = -1.0
+_maxIntegral = 1.0
