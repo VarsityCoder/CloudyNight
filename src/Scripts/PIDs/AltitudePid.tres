@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_qqbdi")
-_p = 0.2
-_i = 0.05
-_d = 1.0
+_p = 0.001
+_i = 0.0
+_d = 0.01
 _clampIntegral = false
 _minIntegral = -1.0
 _maxIntegral = 1.0
