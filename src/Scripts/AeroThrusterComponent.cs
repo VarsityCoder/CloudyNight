@@ -27,20 +27,15 @@ public partial class AeroThrusterComponent : Marker3D {
     if(_rigidBody3D != null) {
 
     }
-
     if(_rigidBody3D is AeroThrusterComponent) {
 
     }
   }
-
   private float CalculateMassFlowAcceleration() {
     var altitude = 0f;
     var airVelocity = _rigidBody3D.LinearVelocity;
 
     var intakeAirVelocty = airVelocity.Dot(-GlobalBasis.Z);
-
-
-
     return 1f;
   }
 
