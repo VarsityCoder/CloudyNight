@@ -1,5 +1,5 @@
 using Godot;
-namespace CloudyNight.Scripts;
+namespace CloudyNight.Scripts.Utils;
 
 using System.Xml;
 using Godot.Collections;
