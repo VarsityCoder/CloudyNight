@@ -1,6 +1,7 @@
 using Godot;
 namespace CloudyNight.Scripts;
 
+[Tool]
 public partial class AeroBody3d : VehicleBody3D {
   private Script _aeroMathUtils = GD.Load<Script>("../utils/math_utils.cs");
   private Script _aeroNodehUtils = GD.Load<Script>("../utils/node_utils.cs");
