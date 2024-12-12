@@ -1,7 +1,9 @@
 namespace CloudyNight.SimpleDungeons;
 
+using System.Threading;
 using Godot;
 using Godot.Collections;
+using Mutex = Godot.Mutex;
 
 public partial class DungeonGenerator3D : Node3D {
   [Signal]
@@ -104,7 +106,8 @@ public partial class DungeonGenerator3D : Node3D {
    get => _abortEditorButton;
    set => AbortGeneration();
  }
- enum AStarHeuristics {
+
+ private enum AStarHeuristics {
    NONE_DIJKSTRAS = 0,
    MANHATTAN = 1,
    EUCLIDEAN = 2
@@ -130,6 +133,34 @@ public partial class DungeonGenerator3D : Node3D {
  [Export(PropertyHint.Range, "0, 1000, 1, or_greater, suffix:ms")]
  private int _visualizeGenerationWaitBetweenIterations = 100;
 
+ private Node? _debugView;
+
+ private Array<DungeonRoom3D> _roomInstances = new();
+ private DungeonRoom3D? _corridorRoomInstance;
+ private int _iterations;
+ private int _retryAttempts;
+ private Node3D? _roomsContainer;
+ private RandomNumberGenerator _rng = new();
+ private Thread _runningThread = new Thread(new ThreadStart(Generate));
+
+
+ //Backing Store
+ private bool _failedToGenerate;
+
+ public bool FailedToGenerate {
+   get {
+     _tMutex.Lock();
+     FailedToGenerate = _failedToGenerate;
+     var v = FailedToGenerate;
+     _tMutex.Unlock();
+     return v;
+   }
+   set {
+     _tMutex.Lock();
+     _failedToGenerate = value;
+     _tMutex.Unlock();
+   }
+ }
  private void Init() => RenderingServer.SetDebugGenerateWireframes(true);
 
  public override void _Input(InputEvent @event) {
@@ -139,7 +170,7 @@ public partial class DungeonGenerator3D : Node3D {
    }
  }
 
- private Node _debugView = null;
+
  private void AddDebugViewIfNotExist() {
    if (!_debugView.IsNodeReady()) {
     //TODO add debug view neod
@@ -168,7 +199,7 @@ public partial class DungeonGenerator3D : Node3D {
    }
  }
 
- private void Generate() {
+ private static void Generate() {
 
  }
 
