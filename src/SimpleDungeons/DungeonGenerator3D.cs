@@ -1,7 +1,6 @@
 namespace CloudyNight.SimpleDungeons;
 
 using System;
-using System.Threading;
 using Godot;
 using Godot.Collections;
 using Mutex = Godot.Mutex;
