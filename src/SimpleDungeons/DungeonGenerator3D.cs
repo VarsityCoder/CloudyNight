@@ -3,6 +3,7 @@ namespace CloudyNight.SimpleDungeons;
 using System;
 using Godot;
 using Godot.Collections;
+using Array = Godot.Collections.Array;
 using Mutex = Godot.Mutex;
 
 public partial class DungeonGenerator3D : Node3D {
@@ -45,8 +46,8 @@ public partial class DungeonGenerator3D : Node3D {
     }
   }
 
-  [Export] private Array<PackedScene> _roomScenes = [];
-  [Export] private PackedScene? _corridorRoomScene;
+  [Export] public Array<PackedScene?> RoomScenes = [];
+  [Export] public PackedScene? CorridorRoomScene;
 
   //Backing store
   private Vector3I _dungeonSize = new(10,10,10);
@@ -126,7 +127,7 @@ public partial class DungeonGenerator3D : Node3D {
 
  [Export] private bool _showDebugInGame;
  [Export] private bool _placeEvenIfFail;
- [Export] private bool _visualizeGenerationProgress;
+ [Export] public bool VisualizeGenerationProgress;
  [Export] private bool _hideDebugVisualsForAllGeneratedRooms = true;
  [Export] private bool _cycleDebugDrawWhenPressN;
 
@@ -136,7 +137,7 @@ public partial class DungeonGenerator3D : Node3D {
  private Node? _debugView;
 
  private Array<DungeonRoom3D> _roomInstances = new();
- private DungeonRoom3D? _corridorRoomInstance;
+ private DungeonRoom3D? CorridorRoomInstance;
  private int _iterations;
  private int _retryAttempts;
  private Node3D? _roomsContainer;
@@ -187,6 +188,7 @@ public partial class DungeonGenerator3D : Node3D {
  private bool _visualizationInProgress;
  private int _lastIterationEndTime = (int)Time.GetTicksMsec();
  private Array<DungeonRoom3D> _preplacedRoomsCached = new();
+
 
 
  private void Init() => RenderingServer.SetDebugGenerateWireframes(true);
