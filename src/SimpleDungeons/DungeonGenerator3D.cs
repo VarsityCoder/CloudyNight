@@ -1,5 +1,6 @@
 namespace CloudyNight.SimpleDungeons;
 
+using System;
 using System.Threading;
 using Godot;
 using Godot.Collections;
@@ -66,7 +67,7 @@ public partial class DungeonGenerator3D : Node3D {
  }
 
  //Backing Store
- private string _generateSeed = "";
+ private static string _generateSeed = "";
 
  [Export]
  public string GenerateSeed {
@@ -141,7 +142,8 @@ public partial class DungeonGenerator3D : Node3D {
  private int _retryAttempts;
  private Node3D? _roomsContainer;
  private RandomNumberGenerator _rng = new();
- private Thread _runningThread = new Thread(new ThreadStart(Generate));
+ // TODO I need to figure out what this thread is doing
+ // private Thread _runningThread = new Thread(new ThreadStart(Generate));
 
 
  //Backing Store
@@ -160,7 +162,34 @@ public partial class DungeonGenerator3D : Node3D {
      _failedToGenerate = value;
      _tMutex.Unlock();
    }
+}
+ // Backing Store
+ private bool _fullAbortTriggered;
+
+ public bool FullAbortTriggered {
+   get {
+     _tMutex.Lock();
+     var v = _fullAbortTriggered;
+     _tMutex.Unlock();
+     return v;
+   }
+   set {
+     _tMutex.Lock();
+     _fullAbortTriggered = value;
+     _tMutex.Unlock();
+   }
  }
+ // Backing Store
+ private bool _isCurrentlyGenerating;
+
+ public bool IsCurrentlyGenerating => !(_stage is BuildStage.NOT_STARTED or BuildStage.DONE) && !_failedToGenerate;
+
+ private bool _isGenerateThreaded;
+ private bool _visualizationInProgress;
+ private int _lastIterationEndTime = (int)Time.GetTicksMsec();
+ private Array<DungeonRoom3D> _preplacedRoomsCached = new();
+
+
  private void Init() => RenderingServer.SetDebugGenerateWireframes(true);
 
  public override void _Input(InputEvent @event) {
@@ -199,15 +228,70 @@ public partial class DungeonGenerator3D : Node3D {
    }
  }
 
- private static void Generate() {
+ private int GenerateHelper() {
+   if (GenerateSeed.IsValidInt()) {
+     return GenerateSeed.ToInt();
+   }
+   var random = new Random();
+   var randomInt = random.Next();
+   return randomInt;
+ }
 
+ private void Generate() {
+   var seed = GenerateHelper();
+   if (_isCurrentlyGenerating) {
+     GD.PrintErr("SimpleDungeonsC# Error: Dungeon currently generating, cannot generate.");
+     return;
+   }
+
+   _stage = BuildStage.NOT_STARTED;
+   if (!ValidateDungeon()) {
+     GD.PrintErr("SimpleDungeons C#: Cannot generate.");
+     return;
+   }
+
+   _rng = new RandomNumberGenerator();
+   _rng.Seed = (ulong)seed;
+   GD.Print("SimpleDungeonsC# generate() : Using seed ", seed);
+
+   CleanAndResetDungeonGenerator();
+   CreateOrRecreateRoomsContainer();
+   GetPreplacedRooms();
  }
 
  private void AbortGeneration() {
 
  }
 
+ private bool ValidateDungeon() {
+   return true;
+ }
+
  private void RunGenerateLoop() {
 
+ }
+
+ private void CleanAndResetDungeonGenerator() {
+
+ }
+
+ private void CreateOrRecreateRoomsContainer() {
+
+ }
+
+ private void FailGeneration(string error = "Aborted Generation") {
+   GD.PrintErr("SimpleDungeonsC# Error: " + error);
+   GD.PrintErr("SimpleDungeonsC# Error: Failed to generate dungeon");
+   _failedToGenerate = true;
+ }
+
+
+ private Array<DungeonRoom3D> GetPreplacedRooms() {
+   var rooms = new Array<DungeonRoom3D>();
+   if (OS.GetThreadCallerId() != OS.GetMainThreadId()) {
+     return _preplacedRoomsCached.Slice(0);
+   }
+
+   return rooms;
  }
 }
