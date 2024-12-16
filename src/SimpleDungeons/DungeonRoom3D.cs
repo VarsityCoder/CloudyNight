@@ -1,5 +1,6 @@
 namespace CloudyNight.SimpleDungeons;
 
+using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -7,18 +8,21 @@ public partial class DungeonRoom3D : Node3D {
   [Signal]
   public delegate void DungeonDoneGeneratingEventHandler();
 
-  // Backing Store
-  private DungeonGenerator3D _dungeonGenerator3D;
+  private static readonly Array<string> _dungeonRoomExportPropsNames = ["size_in_voxels","voxel_scale", "min_count",
+  "max_count", "is_stair_room", "show_debug_in_editor", "show_debug_in_game", "show_grid_aabb_with_doors"];
 
-  public DungeonGenerator3D DungeonGenerator3D {
+  // Backing Store
+  private DungeonGenerator3D? _dungeonGenerator;
+
+  public DungeonGenerator3D? DungeonGenerator {
     get {
       if (IsInsideTree() && GetParent() is DungeonGenerator3D) {
         return (DungeonGenerator3D)GetParent();
       }
 
-      return _dungeonGenerator3D;
+      return _dungeonGenerator;
     }
-    set => _dungeonGenerator3D = value;
+    set => _dungeonGenerator = value;
   }
 
   // Backing Store
@@ -74,22 +78,41 @@ public partial class DungeonRoom3D : Node3D {
       return _wasReplaced;
     }
   }
+  private Mutex _threadFixMutex = new Mutex();
+  // Backing Store
+  private Array<Doors> _doorsCache = [];
+
+  public Array<Doors> DoorsCache {
+    get {
+      _threadFixMutex.Lock();
+      var tmp = _doorsCache;
+      _threadFixMutex.Unlock();
+      return tmp;
+    }
+    set {
+      _threadFixMutex.Lock();
+      _doorsCache = value;
+      _threadFixMutex.Unlock();
+    }
+  }
 
   // Backing Store
   private int _roomRotations;
 
   public int RoomRotations {
     // Using int for Vector 3 because I think original intent was to use Wrap Int
-    get => (int)Mathf.Round(Mathf.Wrap(Mathf.Round(_virtualTransform.Basis.GetEuler().Y / Mathf.DegToRad(90.0)),0,4));
+    get => (int)Mathf.Round(Mathf.Wrap(Mathf.Round(VirtualTransform.Basis.GetEuler().Y / Mathf.DegToRad(90.0)),0,4));
     set =>
       _virtualTransform.Basis = Basis.FromEuler(new Vector3((int)0, (int)(Mathf.Wrap(value, 0, 4) * Mathf.DegToRad(90.0)), (int)0))
-        .Scaled(_virtualTransform.Basis.Scale);
+        .Scaled(VirtualTransform.Basis.Scale);
   }
 
-  // Backing Store
-  private DungeonRoom3D _virtualSelf;
+  private DungeonRoom3D? _virtualizedFrom;
 
-  public DungeonRoom3D VirtualSelf {
+  // Backing Store
+  private DungeonRoom3D? _virtualSelf;
+
+  public DungeonRoom3D? VirtualSelf {
     get {
       if (VirtualizedFrom is null) {
         return VirtualizedFrom;
@@ -99,13 +122,96 @@ public partial class DungeonRoom3D : Node3D {
     set => _virtualSelf = value;
   }
 
+  // Backing Store
   private Transform3D _virtualTransform;
 
+  public Transform3D VirtualTransform {
+    get => _virtualTransform;
+    set {
+      _virtualTransform = value;
+      if (IsInsideTree() && OS.GetMainThreadId() == OS.GetThreadCallerId()) {
+        Transform = value;
+      }
+    }
+  }
+
+  private bool _originalReadyFuncCalled;
 
 
+  public override void _Ready() {
+    _originalReadyFuncCalled = true;
+    if (_virtualizedFrom == null) {
+      AddDebugViewIfNotExist();
+    }
 
-  public DungeonRoom3D VirtualizedFrom;
+    if (!(VirtualTransform is Transform3D)) {
+      Transform = VirtualTransform;
+    }
+    else if(!(Transform is Transform3D)) {
+      VirtualTransform = Transform;
+    }
+    if (GetParent() is Node3D) {
+      if (GetParent() is DungeonGenerator3D) {
+        DungeonGenerator = GetParent() as DungeonGenerator3D;
+      }
+      if (GetParent().GetParent() is DungeonGenerator3D) {
+        DungeonGenerator = GetParent().GetParent() as DungeonGenerator3D;
+      }
+    }
+    if (Engine.IsEditorHint()) {
+      return;
+    }
+  }
 
+  public override void _Process(double delta) {
+    if (Engine.IsEditorHint()) {
+      return;
+    }
+  }
+
+  private void _copyAllProps(DungeonRoom3D from, DungeonRoom3D to) {
+    foreach (var prop in _dungeonRoomExportPropsNames) {
+      if (from.Get(prop).ToString() != to.Get(prop).ToString()) {
+        to.Set(prop, from.Get(prop));
+      }
+      to.Name = from.Name;
+      to.DungeonGenerator = from.DungeonGenerator;
+    }
+  }
+
+  private PackedScene? GetOriginalPackedScene() {
+    if (DungeonGenerator != null && DungeonGenerator.CorridorRoomScene != null && VirtualSelf != null) {
+      if (DungeonGenerator.CorridorRoomScene.ResourcePath == VirtualSelf.SceneFilePath) {
+        return DungeonGenerator.CorridorRoomScene;
+      }
+      foreach (var scene in DungeonGenerator.RoomScenes) {
+        if (scene?.ResourcePath == VirtualSelf.SceneFilePath) {
+          return scene;
+        }
+      }
+      if (VirtualSelf.SceneFilePath != null) {
+        return GD.Load<PackedScene>(VirtualSelf.SceneFilePath);
+      }
+      GD.PrintErr(Name +
+                  "Could not find DungeonRoom3D's original packed scene. This shouldn't happen. Are you manually spawning rooms?");
+    }
+    return null;
+  }
+
+  private DungeonRoom3D CreateCloneAndMakeVirtualUnlessVisualizing() {
+    var makeCloneVirtual = !(DungeonGenerator != null && DungeonGenerator.VisualizeGenerationProgress);
+    DungeonRoom3D clone;
+    if (makeCloneVirtual) {
+      clone = new DungeonRoom3D();
+      clone.VirtualizedFrom = VirtualizedFrom;
+      foreach (var door in DoorsCache) {
+        // clone.DoorsCache.Append(new Doors(door))
+      }
+    }
+    return null;
+  }
+
+  public DungeonRoom3D? VirtualizedFrom;
 
 
   public void AddDebugViewIfNotExist() {
