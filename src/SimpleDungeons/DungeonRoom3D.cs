@@ -1,6 +1,5 @@
 namespace CloudyNight.SimpleDungeons;
 
-using System.Linq;
 using Godot;
 using Godot.Collections;
 
@@ -163,10 +162,30 @@ public partial class DungeonRoom3D : Node3D {
     }
   }
 
+  public Vector3I LocalGridPosToDungeonGridPos(Vector3I localPos) {
+    // TODO need to change this with actual vector3i
+    return new Vector3I();
+  }
+
+  private Transform3D GetXformTo(SPACE from, SPACE to) {
+    var t = new Transform3D();
+    var inv = (to.GetHashCode() < from.GetHashCode()) ? to : from;
+
+    //TODO need to change this for an actual transform 3d
+    return new Transform3D();
+  }
+
   public override void _Process(double delta) {
     if (Engine.IsEditorHint()) {
       return;
     }
+  }
+
+  private enum SPACE {
+    LOCAL_GRID,
+    LOCAL_SPACE,
+    DUNGEON_SPACE,
+    DUNGEON_GRID
   }
 
   private void _copyAllProps(DungeonRoom3D from, DungeonRoom3D to) {
