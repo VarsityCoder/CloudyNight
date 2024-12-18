@@ -21,7 +21,18 @@ public partial class Doors : Node {
   public Vector3I ExitPosLocal {
     // TODO change this for the dungeon utils
     get => LocalPos + new Vector3I(1, 1, 1);
+    set => _exitPosLocal = value;
   }
+
+  // Backing Store
+  private Vector3I _exitPosGrid;
+
+  public Vector3I ExitPosGrid {
+    get => _room.LocalGridPosToDungeonGridPos(ExitPosLocal);
+    set => _exitPosGrid = value;
+  }
+
+
 
   public void Init() {
 
