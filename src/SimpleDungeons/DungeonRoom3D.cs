@@ -249,4 +249,31 @@ public partial class DungeonRoom3D : Node3D {
 
   }
 
+  private Array GetDoors() {
+    if (OS.GetThreadCallerId() != OS.GetMainThreadId() || VirtualizedFrom != null) {
+      return (Array)DoorsCache;
+    }
+
+    var realAabbLocal = getLocalAabb();
+
+    Array roomDoors = [];
+
+
+    return new Array();
+  }
+
+  private Aabb getLocalAabb() {
+    var size = SizeInVoxels * VoxelScale;
+    return new Aabb(-size / 2f, size);
+
+  }
+
+  private Array<Node3D> GetDoorNodes() {
+    Array<Node3D> doors = [];
+    var sourceArrayLength = VirtualSelf.FindChildren("DOOR*", "Node3D").Count;
+    if (VirtualSelf != null) {
+    }
+    return doors;
+  }
+
 }
