@@ -1,8 +1,15 @@
 namespace CloudyNight.SimpleDungeons;
 using Godot;
-
+using Godot.Collections;
 
 public partial class Doors : Node {
+  public Doors(Vector3 localPos, DungeonUtils.Direction direction, bool optional, DungeonRoom3D room, Node3D doorNode) {
+    LocalPos = (Vector3I)localPos.Round();
+    _direction = direction;
+    _optional = optional;
+    _room = room;
+    _doorNode = doorNode;
+  }
 
   private DungeonRoom3D _room;
   public Vector3I LocalPos;
@@ -32,10 +39,21 @@ public partial class Doors : Node {
     set => _exitPosGrid = value;
   }
 
+  private DungeonUtils.Direction _direction;
+  private bool _optional;
+  private Node3D _doorNode;
 
+  private bool FitsOtherDoor(Doors otherRoomDoor) => otherRoomDoor.ExitPosGrid == GridPos && otherRoomDoor.GridPos == ExitPosGrid;
 
-  public void Init() {
-
+  private Array FindDuplicates() {
+    return new Array();
   }
 
+  private bool ValidateDoor() {
+    return false;
+  }
+
+  private DungeonRoom3D GetRoomLeadsTo() {
+    return new DungeonRoom3D();
+  }
 }
