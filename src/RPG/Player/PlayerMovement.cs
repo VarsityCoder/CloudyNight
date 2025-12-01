@@ -117,19 +117,26 @@ public partial class PlayerMovement : CharacterBody3D
       _rigPivot.GlobalTransform = _rigPivot.GlobalTransform.InterpolateWith(targetTransform, 1f- (float)Mathf.Exp(-_animationDecay * delta));
     }
   }
+
   private void SlashAttack() {
-    _rig.Travel("attack_Root|Attack");
-    _attackDirection = GetMovementDirection();
-    if (_attackDirection.IsZeroApprox()) {
-      _attackDirection = _rig.GlobalBasis * new Vector3(0, 0, 1);
+    if (_rig != null) {
+      _rig.Travel("attack_Root|Attack");
+      _attackDirection = GetMovementDirection();
+      if (_attackDirection.IsZeroApprox()) {
+        _attackDirection = _rig.GlobalBasis * new Vector3(0, 0, 1);
+      }
+
+      _attackCast?.ClearExceptions();
     }
-    _attackCast?.ClearExceptions();
   }
 
   private void HandleSlashingPhysicsFrame(float delta) {
-    if (!_rig.isSlashing()) {
-      return;
+    if (_rig != null) {
+      if (!_rig.isSlashing()) {
+        return;
+      }
     }
+
     var tempVector3 = Velocity;
     tempVector3.X = _attackDirection.X * _attackMoveSpeed;
     tempVector3.Z = _attackDirection.Z * _attackMoveSpeed;
