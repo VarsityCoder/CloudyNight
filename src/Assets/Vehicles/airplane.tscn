@@ -1,11 +1,11 @@
 [gd_scene load_steps=19 format=3 uid="uid://bj6yg6ilmtekq"]
 
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/core/aero_body_3d.gd" id="1_3ouou"]
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/components/AeroControlComponent.gd" id="3_kpyar"]
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_3d.gd" id="4_o8d6d"]
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_config.gd" id="5_cw75h"]
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/aero_surface_config.gd" id="6_torfb"]
-[ext_resource type="Script" path="res://addons/godot_aerodynamic_physics/components/AeroThrusterComponent.gd" id="7_oh265"]
+[ext_resource type="Script" uid="uid://bidry8bfej1g4" path="res://addons/godot_aerodynamic_physics/core/aero_body_3d.gd" id="1_3ouou"]
+[ext_resource type="Script" uid="uid://dcomvenwi6j2q" path="res://addons/godot_aerodynamic_physics/components/AeroControlComponent.gd" id="3_kpyar"]
+[ext_resource type="Script" uid="uid://dd2ren2f6jxsy" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_3d.gd" id="4_o8d6d"]
+[ext_resource type="Script" uid="uid://ncf3214us46o" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/manual_aero_surface_3d/manual_aero_surface_config.gd" id="5_cw75h"]
+[ext_resource type="Script" uid="uid://dpp0nj3vs5tgs" path="res://addons/godot_aerodynamic_physics/core/aero_influencer_3d/aero_surface_3d/aero_surface_config.gd" id="6_torfb"]
+[ext_resource type="Script" uid="uid://p405jya5q0ug" path="res://addons/godot_aerodynamic_physics/components/AeroThrusterComponent.gd" id="7_oh265"]
 [ext_resource type="PackedScene" uid="uid://ccmmhgbjyg0hv" path="res://FlyingMachine.glb" id="7_spd8r"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dfrmm"]
@@ -16,14 +16,13 @@ _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector
 point_count = 5
 
 [sub_resource type="Curve" id="Curve_j2w41"]
-min_value = 1.0
-max_value = 1.69
+_limits = [0.99, 1.69, 0.0, 1.0]
 bake_resolution = 23
 _data = [Vector2(0.07, 1), 0.0, 0.0, 0, 0, Vector2(0.088, 1.519), 0.0, 0.0, 0, 0, Vector2(0.119, 1), 0.0, 0.0, 0, 0]
 point_count = 3
 
 [sub_resource type="Curve" id="Curve_616ua"]
-min_value = -1.0
+_limits = [-1.0, 1.0, 0.0, 1.0]
 bake_resolution = 36
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.125, 1), 0.0, 0.0, 0, 0, Vector2(0.25, 1.45519e-11), 0.0, 0.0, 0, 0, Vector2(0.375, -0.4), 0.0, 0.0, 0, 0, Vector2(0.415, -1), 0.0, 0.0, 0, 0, Vector2(0.585, 1), 0.0, 0.0, 0, 0, Vector2(0.625, 0.4), 0.0, 0.0, 0, 0, Vector2(0.75, 1.45519e-11), 0.0, 0.0, 0, 0, Vector2(0.875, -1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 10

@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://b33ef14x5jj3u"]
 
 [ext_resource type="PackedScene" uid="uid://bj6yg6ilmtekq" path="res://src/Assets/Vehicles/airplane.tscn" id="1_7pkq4"]
-[ext_resource type="Shader" path="res://src/Assets/Levels/fogshader.gdshader" id="2_hdll5"]
+[ext_resource type="Shader" uid="uid://djs8hrtphue8y" path="res://src/Assets/Levels/fogshader.gdshader" id="2_hdll5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_d1ps7"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -31,9 +31,9 @@ noise = SubResource("FastNoiseLite_g2f8c")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yyljw"]
 shader = ExtResource("2_hdll5")
 shader_parameter/noise_scale = 0.05
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_bmmys")
 shader_parameter/flatness = 2.567
 shader_parameter/density = 1.0
-shader_parameter/noise_tex = SubResource("NoiseTexture2D_bmmys")
 
 [node name="MainScene" type="Node3D"]
 
